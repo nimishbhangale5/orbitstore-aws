@@ -1,0 +1,11 @@
+.terraform/
+*.zip
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+__pycache__/
+venv/
+*.pyc
+.env
+cdk.out/
+node_modules/
