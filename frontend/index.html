@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OrbitStore</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="starfield" aria-hidden="true"></div>
+      <nav class="nav" aria-label="Primary navigation">
+        <div class="brand" aria-label="OrbitStore brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-name">OrbitStore</span>
+        </div>
+        <div class="nav-links">
+          <a href="#products">Products</a>
+          <a href="#features">Features</a>
+          <a href="#cart">Cart</a>
+        </div>
+        <button class="cart-button" id="cart-btn" type="button" aria-label="Cart">
+          Cart (<span id="cart-count">0</span>)
+        </button>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Futuristic commerce, powered by DynamoDB</p>
+          <h1>
+            Shop the edge of space.
+            <span class="glow">Ship in milliseconds.</span>
+          </h1>
+          <p class="hero-subtitle">
+            Discover neon tech artifacts, add them to your orbit cart, and place orders through the
+            serverless API.
+          </p>
+          <div class="hero-actions">
+            <a class="primary-btn" href="#products">Explore Products</a>
+            <a class="secondary-btn" href="#features">How it works</a>
+          </div>
+        </div>
+
+        <div class="hero-stats" aria-label="OrbitStore highlights">
+          <div class="stat-card">
+            <div class="stat-value">3-Tier</div>
+            <div class="stat-label">Frontend + Lambda + DynamoDB</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">Neon UX</div>
+            <div class="stat-label">Space-themed UI with hover glow</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">Fast API</div>
+            <div class="stat-label">REST endpoints for products & orders</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="products" class="section">
+        <div class="section-head">
+          <h2>Tech Artifacts</h2>
+          <p class="muted">Scroll-stopping gear from the OrbitStore catalog.</p>
+        </div>
+        <div id="products-grid" class="products-grid" role="list" aria-label="Products grid"></div>
+        <div id="products-loading" class="loading-hint" aria-live="polite">Loading orbit inventory...</div>
+      </section>
+
+      <section id="features" class="section features">
+        <div class="section-head">
+          <h2>Designed for the future</h2>
+          <p class="muted">Serverless architecture that stays out of your way.</p>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <h3>Lambda Routes</h3>
+            <p>REST endpoints for `/products`, `/orders`, and `/health` with CORS support.</p>
+          </div>
+          <div class="feature-card">
+            <h3>DynamoDB Storage</h3>
+            <p>Product catalog and orders persist in dedicated tables with on-demand throughput.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Real Checkout</h3>
+            <p>Add items to your cart and place an order that gets stored as a record.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Neon Hover Effects</h3>
+            <p>Purple glow, elevated cards, and a space-themed starfield header.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="cart" class="section">
+        <div class="section-head">
+          <h2>Your Orbit Cart</h2>
+          <p class="muted">Build a cart, then place your order.</p>
+        </div>
+
+        <div class="cart-panel" role="region" aria-label="Cart panel">
+          <div id="cart-empty" class="cart-empty">Your cart is empty. Add a product to begin.</div>
+          <ul id="cart-items" class="cart-items" aria-label="Cart items"></ul>
+
+          <div class="cart-summary">
+            <div class="cart-total">
+              Total: <strong id="cart-total">$0.00</strong>
+            </div>
+            <button id="checkout-btn" class="primary-btn" type="button">Place Order</button>
+            <div id="order-status" class="status" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>OrbitStore</span>
+        </div>
+        <div class="footer-meta">Serverless space commerce demo • DynamoDB + Lambda</div>
+      </div>
+    </footer>
+
+    <script>
+      // Replaced during CI/CD deployment.
+      window.API_URL = "__API_URL__";
+    </script>
+    <script src="app.js"></script>
+  </body>
+</html>
+

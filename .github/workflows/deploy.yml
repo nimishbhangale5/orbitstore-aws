@@ -1,0 +1,67 @@
+name: Deploy OrbitStore
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Ensure Terraform state bucket
+        run: |
+          if ! aws s3api head-bucket --bucket orbitstore-terraform-state --region "${AWS_REGION}" 2>/dev/null; then
+            aws s3api create-bucket --bucket orbitstore-terraform-state --region "${AWS_REGION}" --create-bucket-configuration LocationConstraint="${AWS_REGION}"
+          fi
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+
+      - name: Terraform Init
+        working-directory: infrastructure/terraform
+        run: terraform init -backend-config="bucket=orbitstore-terraform-state" -backend-config="key=orbitstore/terraform.tfstate" -backend-config="region=${AWS_REGION}"
+
+      - name: Terraform Apply
+        working-directory: infrastructure/terraform
+        run: terraform apply -auto-approve
+
+      - name: Seed DynamoDB products
+        run: |
+          python3 -m pip install -r backend/requirements.txt
+          python3 backend/seed_data.py
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy frontend to S3
+        run: |
+          set -euo pipefail
+          API_URL="$(terraform -chdir infrastructure/terraform output -raw api_url)"
+          BUCKET="$(terraform -chdir infrastructure/terraform output -raw website_bucket_name)"
+
+          mkdir -p dist
+          cp frontend/style.css frontend/app.js dist/
+          sed "s|__API_URL__|${API_URL}|g" frontend/index.html > dist/index.html
+
+          aws s3 sync dist/ "s3://${BUCKET}/" --delete --acl public-read
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
