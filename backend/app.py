@@ -180,3 +180,32 @@ def lambda_handler(event, context):
         # Avoid leaking internal stack traces; keep it simple for a demo.
         return _response(500, {"error": "Internal server error", "message": str(exc)})
 
+# ── LOCAL WEB SERVER (for Docker testing) ──
+if __name__ == '__main__':
+    from http.server import HTTPServer, BaseHTTPRequestHandler
+    import json
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            event = {'path': self.path, 'httpMethod': 'GET'}
+            result = lambda_handler(event, None)
+            self.send_response(result['statusCode'])
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(result['body'].encode())
+
+        def do_POST(self):
+            length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(length).decode()
+            event = {'path': self.path, 'httpMethod': 'POST', 'body': body}
+            result = lambda_handler(event, None)
+            self.send_response(result['statusCode'])
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(result['body'].encode())
+
+        def log_message(self, format, *args):
+            print(f"[OrbitStore] {self.path} {args[1]}")
+
+    print("🛸 OrbitStore API running on http://localhost:8080")
+    HTTPServer(('0.0.0.0', 8080), Handler).serve_forever()
